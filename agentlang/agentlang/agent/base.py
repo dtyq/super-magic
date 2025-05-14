@@ -257,19 +257,6 @@ class BaseAgent(ABC):
             # 这里只是为了兼容旧代码，不做实际注册操作
             logger.debug(f"工具 {tool_name} 已通过装饰器注册，无需手动注册")
 
-    @abstractmethod
-    async def _check_query_safety(self, query: str) -> tuple[bool, str, str]:
-        """
-        检测用户输入是否包含恶意内容。
-
-        Args:
-            query: 用户输入的查询内容
-
-        Returns:
-            tuple[bool, str, str]: (是否安全, 具体原因, 不安全类型)
-        """
-        pass
-
     def print_token_usage(self) -> None:
         """
         打印token使用报告。
@@ -294,13 +281,27 @@ class BaseAgent(ABC):
         model_id, tools_definition, attributes_definition, prompt = self._agent_loader.load_agent(agent_name)
         self.system_prompt = prompt
 
-        # 检查工具是否存在，若不存在则忽略并抛出 warning
+        # 检查工具是否存在且可用，若不存在或不可用则忽略并抛出 warning
         valid_tools = {}
         for tool_name in tools_definition.keys():
-            if tool_factory.get_tool(tool_name):
+            try:
+                # 获取工具实例（不是工具信息）
+                tool_instance = tool_factory.get_tool_instance(tool_name)
+
+                # 检查工具是否可用
+                if not tool_instance.is_available():
+                    logger.warning(f"工具 '{tool_name}' 不可用（环境变量未配置或依赖缺失），将在 Agent 定义中被忽略")
+                    continue
+
                 valid_tools[tool_name] = tools_definition[tool_name]
-            else:
-                logger.warning(f"工具 '{tool_name}' 不存在，将在 Agent 定义中被忽略")
+            except ValueError as e:
+                # 工具不存在
+                logger.warning(f"工具 '{tool_name}' 不存在，将在 Agent 定义中被忽略: {e}")
+                continue
+            except Exception as e:
+                # 其他错误
+                logger.warning(f"加载工具 '{tool_name}' 时发生错误，将在 Agent 定义中被忽略: {e}")
+                continue
 
         self.tools = valid_tools
         self.attributes = attributes_definition

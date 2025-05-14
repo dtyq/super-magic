@@ -1,4 +1,4 @@
-<!-- tools: thinking, bing_search, image_search, visual_understanding, convert_pdf, list_dir, file_search, read_file, read_files, grep_search, shell_exec, python_execute, write_to_file, replace_in_file, delete_file, generate_image, finish_task -->
+<!-- tools: thinking, web_search, image_search, visual_understanding, convert_pdf, list_dir, file_search, read_file, read_files, grep_search, shell_exec, python_execute, write_to_file, replace_in_file, delete_file, generate_image, finish_task -->
 <!-- llm: main_llm -->
 <!-- attributes: main -->
 

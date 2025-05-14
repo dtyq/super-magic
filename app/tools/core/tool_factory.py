@@ -9,13 +9,44 @@ import inspect
 import os
 import pkgutil
 import time
-from typing import Any, Dict, List, Type
+from typing import Dict, List, Type, TypeVar, Optional
+from dataclasses import dataclass
 
 from agentlang.context.tool_context import ToolContext
 from agentlang.tools.tool_result import ToolResult
 from agentlang.logger import get_logger
+from app.tools.core import BaseTool
 
 logger = get_logger(__name__)
+
+# 工具类型变量
+T = TypeVar('T', bound=BaseTool)
+
+
+@dataclass
+class ToolInfo:
+    """工具信息类，存储工具的元数据和类型信息"""
+    # 工具类
+    tool_class: Type[BaseTool]
+    # 工具名称
+    name: str
+    # 工具描述
+    description: str
+    # 工具参数类型（可能为None）
+    params_class: Optional[Type] = None
+    # 错误信息（如果注册过程中发生错误）
+    error: Optional[str] = None
+
+    def __post_init__(self):
+        """验证创建的工具信息对象"""
+        if not self.tool_class:
+            raise ValueError("工具类不能为空")
+        if not self.name:
+            raise ValueError("工具名称不能为空")
+
+    def is_valid(self) -> bool:
+        """检查工具信息是否有效"""
+        return self.error is None
 
 
 class ToolFactory:
@@ -35,11 +66,11 @@ class ToolFactory:
         if self._initialized:
             return
 
-        self._tools = {}  # 工具信息字典：name -> info
-        self._tool_instances = {}  # 工具实例缓存：name -> instance
+        self._tools: Dict[str, ToolInfo] = {}  # 工具信息字典：name -> ToolInfo对象
+        self._tool_instances: Dict[str, BaseTool] = {}  # 工具实例缓存：name -> instance
         self._initialized = True
 
-    def register_tool(self, tool_class: Type):
+    def register_tool(self, tool_class: Type[BaseTool]) -> None:
         """注册工具类
 
         Args:
@@ -55,13 +86,16 @@ class ToolFactory:
         params_class = getattr(tool_class, 'params_class', None) or getattr(tool_class, '_params_class', None)
 
         try:
-            # 记录工具信息
-            self._tools[tool_name] = {
-                "class": tool_class,
-                "name": tool_name,
-                "description": tool_class._tool_description,
-                "params_class": params_class
-            }
+            # 创建工具信息对象
+            tool_info = ToolInfo(
+                tool_class=tool_class,
+                name=tool_name,
+                description=tool_class._tool_description,
+                params_class=params_class
+            )
+
+            # 存储工具信息
+            self._tools[tool_name] = tool_info
 
             # 标记为已注册
             tool_class._registered = True
@@ -72,15 +106,15 @@ class ToolFactory:
             if hasattr(e, '__str__'):
                 logger.error(f"详细错误: {e!s}")
             # 即使有错误也保留一个有效的工具记录，但标记为不可用
-            self._tools[tool_name] = {
-                "class": tool_class,
-                "name": tool_name,
-                "description": getattr(tool_class, '_tool_description', "无法获取描述"),
-                "params_class": None,
-                "error": str(e)
-            }
+            self._tools[tool_name] = ToolInfo(
+                tool_class=tool_class,
+                name=tool_name,
+                description=getattr(tool_class, '_tool_description', "无法获取描述"),
+                params_class=None,
+                error=str(e)
+            )
 
-    def auto_discover_tools(self):
+    def auto_discover_tools(self) -> None:
         """自动发现并注册工具
 
         扫描app.tools包下的所有模块，查找并注册所有通过@tool装饰的工具类
@@ -94,7 +128,7 @@ class ToolFactory:
             logger.info(f"发现工具包: {entry_point.value}")
         try:
             # 定义一个递归扫描函数
-            def scan_package(pkg_name, pkg_path):
+            def scan_package(pkg_name: str, pkg_path: str) -> None:
                 logger.info(f"扫描包: {pkg_name}")
 
                 # 扫描该包下的所有模块
@@ -113,7 +147,7 @@ class ToolFactory:
                             if not hasattr(subpackage, '__file__') or subpackage.__file__ is None:
                                 logger.warning(f"子包 {subpackage_name} 没有 __file__ 属性或为 None，跳过扫描")
                                 continue
-                                
+
                             subpackage_path = os.path.dirname(subpackage.__file__)
 
                             # 递归扫描子包
@@ -155,33 +189,33 @@ class ToolFactory:
         except Exception as e:
             logger.error(f"扫描工具时发生错误: {e!s}", exc_info=True)
 
-    def initialize(self):
+    def initialize(self) -> None:
         """初始化工厂，扫描和注册所有工具"""
         self.auto_discover_tools()
         logger.info(f"工具工厂初始化完成，共发现 {len(self._tools)} 个工具")
 
-    def get_tool(self, tool_name: str) -> Dict[str, Any]:
+    def get_tool(self, tool_name: str) -> Optional[ToolInfo]:
         """获取工具信息
 
         Args:
             tool_name: 工具名称
 
         Returns:
-            Dict[str, Any]: 工具信息
+            Optional[ToolInfo]: 工具信息对象
         """
         if not self._tools:
             self.initialize()
 
         return self._tools.get(tool_name)
 
-    def get_tool_instance(self, tool_name: str) -> Any:
+    def get_tool_instance(self, tool_name: str) -> BaseTool:
         """获取工具实例
 
         Args:
             tool_name: 工具名称
 
         Returns:
-            工具实例
+            BaseTool: 工具实例
         """
         # 先检查缓存
         if tool_name in self._tool_instances:
@@ -193,14 +227,13 @@ class ToolFactory:
             raise ValueError(f"工具 {tool_name} 不存在")
 
         # 创建工具实例
-        tool_class = tool_info["class"]
         try:
             # 获取类属性
-            name = getattr(tool_class, 'name', tool_name)
-            description = getattr(tool_class, 'description', "")
+            name = getattr(tool_info.tool_class, 'name', tool_name)
+            description = getattr(tool_info.tool_class, 'description', tool_info.description)
 
             # 显式传递name和description作为实例化参数
-            tool_instance = tool_class(name=name, description=description)
+            tool_instance = tool_info.tool_class(name=name, description=description)
 
             # 缓存实例
             self._tool_instances[tool_name] = tool_instance
@@ -210,11 +243,11 @@ class ToolFactory:
             logger.error(f"创建工具 {tool_name} 实例时出错: {e}")
             raise ValueError(f"无法创建工具 {tool_name} 的实例: {e}")
 
-    def get_all_tools(self) -> Dict[str, Dict[str, Any]]:
+    def get_all_tools(self) -> Dict[str, ToolInfo]:
         """获取所有工具信息
 
         Returns:
-            Dict[str, Dict[str, Any]]: 工具名称和信息的字典
+            Dict[str, ToolInfo]: 工具名称和信息对象的字典
         """
         if not self._tools:
             self.initialize()
@@ -232,11 +265,11 @@ class ToolFactory:
 
         return list(self._tools.keys())
 
-    def get_all_tool_instances(self) -> List[Any]:
+    def get_all_tool_instances(self) -> List[BaseTool]:
         """获取所有工具实例
 
         Returns:
-            List[Any]: 工具实例列表
+            List[BaseTool]: 工具实例列表
         """
         all_tools = self.get_all_tools()
         return [self.get_tool_instance(tool_name) for tool_name in all_tools.keys()]
@@ -260,7 +293,7 @@ class ToolFactory:
 
             # 转换参数类型（如果适用）
             tool_info = self.get_tool(tool_name)
-            params_class = tool_info.get("params_class")
+            params_class = tool_info.params_class if tool_info else None
             if params_class:
                 try:
                     params = params_class(**kwargs)
