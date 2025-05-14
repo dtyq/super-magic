@@ -27,7 +27,6 @@ import typer
 from agentlang.logger import setup_logger, get_logger, configure_logging_intercept
 from agentlang.context.application_context import ApplicationContext
 from app.command.ws_server import start_ws_server
-from app.command.extract_pyinstaller import extract_pyinstaller_resources
 from app.command.storage_uploader_tool import start_storage_uploader_watcher
 from agentlang.utils.file import clear_directory_contents
 
@@ -141,11 +140,6 @@ def ws_server_command(
     except Exception as e:
         logger.error(f"启动WebSocket服务器时发生错误: {e}")
         logger.error(f"堆栈信息: {traceback.format_exc()}")
-
-@cli.command("extract-pyinstaller", help="只提取 PyInstaller 打包的资源文件，不启动应用")
-def extract_pyinstaller_command():
-    """提取 PyInstaller 打包的资源文件并退出命令封装"""
-    extract_pyinstaller_resources()
 
 @storage_uploader_cmds.command("watch", help="监控目录变化并自动上传到由环境变量 STORAGE_PLATFORM 配置的存储后端")
 def storage_uploader_watch_command(
