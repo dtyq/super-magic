@@ -1,20 +1,21 @@
 # SuperMagic
 
-SuperMagic 是一个通用人工智能系统(AGI)，提供强大的任务处理能力。它基于多种大模型，支持丰富的工具调用，能够处理复杂的用户查询和任务。
+SuperMagic 是 Magic 产品矩阵的旗舰产品，是一个专为复杂任务场景设计的**通用人工智能系统(AGI)**。它通过多智能体设计系统和丰富的工具能力，支持**自主任务理解**、**自主任务规划**、**自主行动**以及**自主错误修正**等智能能力。SuperMagic 可以理解自然语言指令，执行各种业务流程，并交付最终目标结果。
+
+作为 Magic 产品矩阵的旗舰产品，SuperMagic 通过开源提供强大的二次开发能力，使企业能够快速构建和部署满足特定业务需求的智能助手，大幅提升决策效率和质量。
 
 ## 主要特性
 
-- **多工具支持**：预加载常用工具，包括 Python 执行、网络搜索、浏览器操作、文件保存等
+- **多工具支持**：预加载常用工具，包括 Python 执行、网络搜索、浏览器操作、文件操作等
 - **状态管理**：完善的状态管理机制，支持 IDLE、RUNNING、FINISHED、ERROR 等状态
-- **资源管理**：自动跟踪和清理资源，避免资源泄漏
-- **错误处理**：分层的错误处理机制，提高系统稳定性
 - **执行控制**：支持最大迭代次数限制和输出长度限制
-- **模块化提示词**：整合了详细的行为指南，提高代理的任务处理能力
+- **多智能体协作**：支持多个智能体协同工作，处理复杂任务场景
+- **无缝集成**：与 Magic Flow 等产品矩阵无缝集成，实现更强大的工作流编排
 
 ## 安装要求
 
-- Python 3.8+
-- 大模型 API 密钥（Claude、OpenAI、DeepSeek V3、DeepSeek R1）
+- Python 3.12+
+- 大模型 API 密钥（Claude、OpenAI、DeepSeek V3、Qwen）
 - 相关依赖包
 
 ## 环境变量设置
@@ -23,100 +24,31 @@ SuperMagic 是一个通用人工智能系统(AGI)，提供强大的任务处理�
 
 必需的环境变量：
 - `OPENAI_API_KEY`：OpenAI API密钥
-- `ANTHROPIC_API_KEY`：Anthropic API密钥
-- `TIKHUB_API_KEY`：TikHub API密钥（用于知乎工具）
 
-## 工具列表
+## 应用案例
 
-### 知乎工具
+SuperMagic 可应用于各种复杂业务场景，以下是一些典型案例：
 
-知乎工具基于TikHub API实现，提供知乎问答和文章数据的获取功能。主要功能包括：
+- [沃伦·巴菲特2025年股东大会投资洞察分析](https://www.letsmagic.cn/share/777665156986277889)
+- [北京仿人机器人半程马拉松相关股票分析](https://www.letsmagic.cn/share/774280936479625217)
+- [《思考，快与慢》核心概念总结](https://www.letsmagic.cn/share/777461325648195584)
+- [上海阿姨IPO分析与投资建议](https://www.letsmagic.cn/share/777604044873928705)
+- [SKU销售预测需求](https://www.letsmagic.cn/share/771022574397648897)
 
-- 获取热门问题列表
-- 搜索问题和文章
-- 获取问题详情和回答
-- 获取文章详情
-- 获取用户资料
+更多案例请访问[官方网站](https://www.letsmagic.cn)。
 
-使用前请确保设置了有效的 `TIKHUB_API_KEY` 环境变量。
+## 相关项目
 
-测试知乎工具：
-```bash
-python tests/test_zhihu_tool.py
-```
+SuperMagic 是 Magic 产品矩阵的一部分，与以下产品协同工作：
 
-## 基本使用
+- **[Magic IM](https://github.com/dtyq/magic)** - 集成AI代理对话与企业内部通讯的企业级即时通讯系统
+- **[Magic Flow](https://github.com/dtyq/magic-flow)** - 强大的可视化AI工作流编排系统
+- **[Agentlang](https://github.com/dtyq/agentlang)** - 以语言为中心的AI代理框架，用于使用自然语言构建AI代理
 
-```python
-from app.agent import SuperMagic
+## 贡献与支持
 
-# 创建 SuperMagic 实例
-agent = SuperMagic()
+欢迎为SuperMagic贡献代码或提出建议。如果您发现任何问题，请在GitHub仓库提交issue。
 
-# 运行代理处理查询
-response = agent.run("帮我查询一下Python的最新版本，并创建一个简单的Hello World程序")
-print(response)
-```
+## 许可证
 
-## 高级用法
-
-### 自定义系统提示词
-
-```python
-custom_prompt = """
-你是一个专注于数据分析的AI助手，擅长使用Python进行数据处理和可视化。
-"""
-
-agent = SuperMagic(system_prompt=custom_prompt)
-```
-
-### 注册自定义工具
-
-```python
-from app.tools.base_tool import BaseTool
-
-class MyCustomTool(BaseTool):
-    name = "my_custom_tool"
-    description = "这是一个自定义工具"
-
-    async def _run(self, **kwargs):
-        # 工具实现逻辑
-        return "工具执行结果"
-
-# 注册工具
-agent = SuperMagic()
-agent.register_tool(MyCustomTool())
-```
-
-### 异步使用
-
-```python
-import asyncio
-
-async def main():
-    agent = SuperMagic()
-    response = await agent.run_async("你的查询")
-    print(response)
-
-asyncio.run(main())
-```
-
-## 测试
-
-运行测试脚本以验证功能：
-
-```
-python test_super_magic.py
-```
-
-## 项目结构
-
-- `app/agent/super_magic.py`：SuperMagic 代理主实现
-- `app/tools/zhihu_tool.py`：知乎工具实现
-- `tests/test_zhihu_tool.py`：知乎工具测试脚本
-- `test_super_magic.py`：测试脚本
-- `todo.md`：实现计划和进度跟踪
-
-## 待完成功能
-
-详见 `todo.md` 文件中的未完成项目。
+本项目遵循[Magic开源许可证](https://github.com/dtyq/magic/blob/main/LICENSE)，本质上是Apache 2.0但有一些额外限制。
