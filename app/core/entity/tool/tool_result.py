@@ -14,7 +14,7 @@ class SearchResult(BaseModel):
     icon_url: Optional[str] = None  # 添加网站图标URL字段
 
 
-class BingSearchToolResult(ToolResult):
+class WebSearchToolResult(ToolResult):
     """必应搜索工具的结构化结果"""
     # 存放需要返回给大模型的搜索结果
     output_results: Dict[str, List[SearchResult]] = Field(default_factory=dict)

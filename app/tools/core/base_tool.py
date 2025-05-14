@@ -36,6 +36,18 @@ class BaseTool(Generic[T], ABC):
     # 配置项
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
+    def is_available(self) -> bool:
+        """
+        检查工具是否可用
+
+        子类可以重写此方法以提供特定的可用性检查，
+        例如检查所需的环境变量、API密钥或其他依赖是否已正确配置
+
+        Returns:
+            bool: 如果工具可用返回True，否则返回False
+        """
+        return True
+
     def __init_subclass__(cls, **kwargs):
         """子类初始化时处理元数据
 

@@ -4,7 +4,7 @@
 """
 # 导出工具类
 from app.tools.ask_user import AskUser
-from app.tools.bing_search import BingSearch
+from app.tools.web_search import WebSearch
 from app.tools.call_agent import CallAgent
 from app.tools.core import BaseTool, BaseToolParams, tool, tool_factory
 from app.tools.delete_file import DeleteFile
@@ -45,7 +45,7 @@ __all__ = [
     "AbstractFileTool",
     "AppendToFile",
     "AskUser",
-    "BingSearch",
+    "WebSearch",
     "CallAgent",
     "ConvertPdf",
     "DeepWrite",

@@ -600,6 +600,17 @@ bing:
   search_api_key: "${BING_SUBSCRIPTION_KEY}"
   search_endpoint: "${BING_SUBSCRIPTION_ENDPOINT:-https://api.bing.microsoft.com/v7.0}"
 
+# Tavily 搜索 API 配置
+tavily:
+  api_key: "${TAVILY_API_KEY}"
+  api_endpoint: "${TAVILY_API_ENDPOINT:-https://api.tavily.com}"
+  search_endpoint: "${TAVILY_SEARCH_ENDPOINT:-/search}"
+
+# 搜索引擎选择
+search:
+  # 默认搜索引擎: bing 或 tavily
+  default_engine: "${DEFAULT_SEARCH_ENGINE:-bing}"
+
 token_service:
   address: "${TOKEN_SERVICE_ADDRESS}"
   redis_uri: "${REDIS_URI}"
