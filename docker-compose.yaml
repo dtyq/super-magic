@@ -1,0 +1,7 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"  # REST API 和 Web UI
+      - "6334:6334"  # GRPC
+    restart: always
