@@ -1,11 +1,11 @@
 # =====================================================
-# Super Magic 配置文件
+# Super Magic Configuration File
 # =====================================================
-# 重要安全提示:
-# 1. 敏感的模型ID（如 ep-xxxxxxxxxx 格式的ID）应该只在 .env 文件中定义
-# 2. 配置文件中应该使用人类可读的默认值（如 doubao-pro-32k）
-# 3. 真实的模型ID应该通过环境变量在运行时注入
-# 4. 此文件会被提交到Git，不要在此文件中暴露任何敏感信息
+# Important Security Notes:
+# 1. Sensitive model IDs (such as those in ep-xxxxxxxxxx format) should only be defined in the .env file
+# 2. This configuration file should use human-readable default values (e.g., doubao-pro-32k)
+# 3. Actual model IDs should be injected at runtime through environment variables
+# 4. This file will be committed to Git, do not expose any sensitive information in this file
 # =====================================================
 
 browser:
@@ -13,51 +13,27 @@ browser:
   cookies_file: ${BROWSER_COOKIES_FILE:-.browser/cookies.json}
   storage_state_template_url: ${BROWSER_STORAGE_STATE_TEMPLATE_URL:-None}
 
-# LLM API 通用配置
+# LLM API General Configuration
 llm:
   api_timeout: ${LLM_API_TIMEOUT:-600}
   api_max_retries: ${LLM_API_MAX_RETRIES:-3}
-  # 自定义API请求头配置 - 所有请求头都从环境变量读取
+  # Custom API headers configuration - All headers are read from environment variables
   custom_api_headers: ${LLM_CUSTOM_API_HEADERS:-{}}
-  # AWS AutoCache 配置 (参考 Bedrock Claude)
-  aws_autocache:
-    enabled: ${LLM_AWS_AUTOCACHE_ENABLED:-true} # 默认开启，因为不是所有模型都支持
-    max_cache_points: ${LLM_AWS_MAX_CACHE_POINTS:-4} # 范围 [1, 4]
-    min_cache_tokens: ${LLM_AWS_MIN_CACHE_TOKENS:-2048} # 最小 2048
-    refresh_point_min_tokens: ${LLM_AWS_REFRESH_POINT_MIN_TOKENS:-5000} # 最小 2048
 
-# 当前活动的 Agent 模式 (可通过 ACTIVE_AGENT_MODE 环境变量覆盖)
-# 可选值: apex(至强模式), efficient(高性价比模式), flash(极速模式)
-active_agent_mode: ${ACTIVE_AGENT_MODE:-apex} # 默认为 'apex' 至强模式
+# Current active Agent mode (can be overridden by ACTIVE_AGENT_MODE environment variable)
+# Available values: apex(high performance mode), efficient(cost-effective mode), flash(speed mode)
+active_agent_mode: ${ACTIVE_AGENT_MODE:-apex} # Default is 'apex' high performance mode
 
-# Agent 模式定义
+# Agent mode definitions
 agent_modes:
-  # apex - 至强模式：全部使用高性能模型
+  # apex - High Performance Mode: Using high-performance models for all agents
   apex:
     model_aliases:
-      main_llm: claude-3.7-cache
-      coder_llm: claude-3.7-cache
-      writer_llm: claude-3.7-cache
-      browser_llm: claude-3.7-cache
-      worker_llm: claude-3.7-cache
-
-  # efficient - 高性价比模式：部分次要角色使用更经济的模型
-  efficient:
-    model_aliases:
-      main_llm: gpt-4.1                   # 主控使用性价比
-      coder_llm: claude-3.7-cache         # 编码保持高性能
-      writer_llm: qwen-max                # 写作使用经济型
-      browser_llm: qwen-max               # 浏览器使用经济型
-      worker_llm: qwen-max                # 部署使用经济型
-
-  # flash - 极速模式：优先考虑响应速度，使用最快的模型
-  flash:
-    model_aliases:
-      main_llm: qwen-turbo                # 主控使用高速模型
-      coder_llm: qwen-max                 # 编码使用高速模型
-      writer_llm: qwen-turbo              # 写作使用高速模型
-      browser_llm: qwen-turbo             # 浏览器使用高速模型
-      worker_llm: qwen-turbo              # 部署使用高速模型
+      main_llm: gpt-4.1
+      coder_llm: gpt-4.1
+      writer_llm: gpt-4.1
+      browser_llm: gpt-4.1
+      worker_llm: gpt-4.1
 
 agent:
   enable_multi_tool_calls: ${AGENT_ENABLE_MULTI_TOOL_CALLS:-false}
@@ -65,45 +41,28 @@ agent:
   parallel_tool_calls_timeout: ${AGENT_PARALLEL_TOOL_CALLS_TIMEOUT:-None}
   safety_checker_model_id: ${AGENT_SAFETY_MODEL_ID:-gpt-4.1} # 安全检查模型统一使用
 
-# 图片生成服务配置
+# Image Generation Service Configuration
 image_generator:
   api_url: ${IMAGE_GENERATOR_API_URL}
   api_key: ${IMAGE_GENERATOR_API_KEY}
 
-# 模型别名映射
-# 允许在 .agent 文件中使用别名，实际模型可通过环境变量指定
-# 例如，WRITER_LLM 环境变量可以覆盖 writer_llm 的默认值
+# Model Alias Mapping
+# Allows using aliases in .agent files, actual models can be specified via environment variables
+# For example, WRITER_LLM environment variable can override the default value of writer_llm
 model_aliases:
-  main_llm: ${MAIN_LLM:-claude-3.7-cache}          # 主控 Agent (super-magic, magic) 使用
-  coder_llm: ${CODER_LLM:-claude-3.7-cache}         # 编程组 Agent (coder, data-analyst) 使用
-  writer_llm: ${WRITER_LLM:-claude-3.7-cache}        # 写作组 Agent (writer, slide) 使用
-  browser_llm: ${BROWSER_LLM:-claude-3.7-cache}     # 浏览器 Agent (web-browser) 使用
-  worker_llm: ${WORKER_LLM:-claude-3.7-cache}        # 部署 Agent (deployer) 使用
+  main_llm: ${MAIN_LLM:-gpt-4.1}          # Used by main Agent (super-magic, magic)
+  coder_llm: ${CODER_LLM:-gpt-4.1}         # Used by programming group Agents (coder, data-analyst)
+  writer_llm: ${WRITER_LLM:-gpt-4.1}        # Used by writing group Agents (writer, slide)
+  browser_llm: ${BROWSER_LLM:-gpt-4.1}     # Used by browser Agent (web-browser)
+  worker_llm: ${WORKER_LLM:-gpt-4.1}        # Used by deployment Agent (deployer)
 
-# 模型配置
+# Model Configuration
 models:
-  # LLM模型
+  # LLM Models
   claude-3.7:
     api_key: "${CLAUDE_API_KEY}"
     api_base_url: "${CLAUDE_API_BASE_URL:-https://api.anthropic.com/v1}"
     name: "${CLAUDE_MODEL:-claude-3-7-sonnet}"
-    type: "llm"
-    supports_tool_use: true
-    provider: "openai"
-    max_output_tokens: 64000
-    max_context_tokens: 200000
-    temperature: 0.7
-    pricing:
-      input_price: 0.003
-      output_price: 0.015
-      cache_write_price: 0.00375
-      cache_hit_price: 0.0003
-      currency: "USD"
-
-  claude-3.7-cache:
-    api_key: "${CLAUDE_CACHE_API_KEY}"
-    api_base_url: "${CLAUDE_CACHE_API_BASE_URL:-https://brconnector.letsmagic.cc/v1}"
-    name: "${CLAUDE_CACHE_MODEL:-claude-3-7-sonnet}"
     type: "llm"
     supports_tool_use: true
     provider: "openai"
@@ -229,7 +188,7 @@ models:
       cache_write_price: 0.000025
       currency: "USD"
 
-  # 豆包大模型配置
+  # Doubao
   doubao-1.5-vision-pro-32k:
     api_key: "${DOUBAO_API_KEY}"
     api_base_url: "${DOUBAO_API_BASE_URL}"
@@ -289,7 +248,7 @@ models:
       output_price: 0.002
       currency: "CNY"
 
-  # 通义千问大模型配置
+  # Qwen
   qwen-max:
     api_key: "${QWEN_API_KEY}"
     api_base_url: "${QWEN_API_BASE_URL:-https://dashscope.aliyuncs.com/compatible-mode/v1}"
@@ -365,7 +324,7 @@ models:
       output_price: 0.004
       currency: "CNY"
 
-  # 通义千问3系列模型
+  # Qwen 3 Series
   qwen3-235b:
     api_key: "${QWEN_API_KEY}"
     api_base_url: "${QWEN_API_BASE_URL:-https://dashscope.aliyuncs.com/compatible-mode/v1}"
@@ -374,9 +333,9 @@ models:
     supports_tool_use: true
     provider: "openai"
     max_output_tokens: 8192 # 最大输出长度
-    max_context_tokens: 131072  # 上下文长度
+    max_context_tokens: 131072
     temperature: 0.7
-    support_thinking: true  # 支持思考模式
+    support_thinking: true
     pricing:
       input_price: 0.004
       output_price: 0.012
@@ -390,9 +349,9 @@ models:
     supports_tool_use: true
     provider: "openai"
     max_output_tokens: 8192
-    max_context_tokens: 131072  # 上下文长度
+    max_context_tokens: 131072
     temperature: 0.7
-    support_thinking: true  # 支持思考模式
+    support_thinking: true
     pricing:
       input_price: 0.002
       output_price: 0.008
@@ -406,9 +365,9 @@ models:
     supports_tool_use: true
     provider: "openai"
     max_output_tokens: 8192
-    max_context_tokens: 131072  # 上下文长度
+    max_context_tokens: 131072
     temperature: 0.7
-    support_thinking: true  # 支持思考模式
+    support_thinking: true
     pricing:
       input_price: 0.0015
       output_price: 0.006
@@ -422,9 +381,9 @@ models:
     supports_tool_use: true
     provider: "openai"
     max_output_tokens: 8192
-    max_context_tokens: 131072  # 上下文长度
+    max_context_tokens: 131072
     temperature: 0.7
-    support_thinking: true  # 支持思考模式
+    support_thinking: true
     pricing:
       input_price: 0.001
       output_price: 0.004
@@ -438,9 +397,9 @@ models:
     supports_tool_use: true
     provider: "openai"
     max_output_tokens: 8192
-    max_context_tokens: 131072  # 上下文长度
+    max_context_tokens: 131072
     temperature: 0.7
-    support_thinking: true  # 支持思考模式
+    support_thinking: true
     pricing:
       input_price: 0.0005
       output_price: 0.002
@@ -454,9 +413,9 @@ models:
     supports_tool_use: true
     provider: "openai"
     max_output_tokens: 8192
-    max_context_tokens: 131072  # 上下文长度
+    max_context_tokens: 131072
     temperature: 0.7
-    support_thinking: true  # 支持思考模式
+    support_thinking: true
     pricing:
       input_price: 0.0003
       output_price: 0.0012
@@ -470,9 +429,9 @@ models:
     supports_tool_use: true
     provider: "openai"
     max_output_tokens: 8192
-    max_context_tokens: 32768  # 上下文长度
+    max_context_tokens: 32768
     temperature: 0.7
-    support_thinking: true  # 支持思考模式
+    support_thinking: true
     pricing:
       input_price: 0.0003
       output_price: 0.0012
@@ -486,14 +445,15 @@ models:
     supports_tool_use: true
     provider: "openai"
     max_output_tokens: 8192
-    max_context_tokens: 32768  # 上下文长度
+    max_context_tokens: 32768
     temperature: 0.7
-    support_thinking: true  # 支持思考模式
+    support_thinking: true
     pricing:
       input_price: 0.0003
       output_price: 0.0012
       currency: "CNY"
 
+  # Gemini
   gemini-2.0-flash:
     api_key: "${GEMINI_API_KEY}"
     api_base_url: "${GEMINI_API_BASE_URL:-https://open.bigmodel.cn/api/paas/v4/}"
@@ -539,6 +499,7 @@ models:
       output_price: 0.01
       currency: "USD"
 
+  # GLM
   glm-z1-air:
     api_key: "${GLM_API_KEY}"
     api_base_url: "${GLM_API_BASE_URL:-https://open.bigmodel.cn/api/paas/v4/}"
@@ -599,18 +560,7 @@ models:
       output_price: 0.008
       currency: "CNY"
 
-  # Embedding模型
-  magic-embedding:
-    api_key: "${MAGIC_API_KEY}"
-    api_base_url: "${MAGIC_API_BASE_URL:-https://api.openai.com/v1}"
-    name: "${MAGIC_EMBEDDING_MODEL:-text-embedding-3-large}"
-    type: "embedding"
-    provider: "openai"
-    max_output_tokens: 8192
-    temperature: 0.0
-    pricing:
-      input_price: 0.00013
-      currency: "USD"
+  # Embedding Models
 
   openai-embedding:
     api_key: "${OPENAI_API_KEY}"
@@ -639,7 +589,7 @@ models:
       input_price: 0.00013
       currency: "USD"
 
-  # 默认价格配置，用作后备
+  # Default pricing configuration, used as fallback
   default:
     pricing:
       input_price: 0.001
@@ -649,12 +599,6 @@ models:
 bing:
   search_api_key: "${BING_SUBSCRIPTION_KEY}"
   search_endpoint: "${BING_SUBSCRIPTION_ENDPOINT:-https://api.bing.microsoft.com/v7.0}"
-
-filebase:
-  embedding_model_id: "${FILEBASE_EMBEDDING_MODEL_ID:-magic-embedding}"
-  collection_prefix: "${FILEBASE_COLLECTION_PREFIX:-SUPERMAGIC-FILEBASE}"
-  max_vectorization_concurrency: "${FILEBASE_MAX_VECTORIZATION_CONCURRENCY:-20}"
-  max_embedding_retry_attempts: "${FILEBASE_MAX_EMBEDDING_RETRY_ATTEMPTS:-5}"
 
 token_service:
   address: "${TOKEN_SERVICE_ADDRESS}"
@@ -666,15 +610,10 @@ qdrant:
   base_uri: "${QDRANT_BASE_URI}"
   api_key: "${QDRANT_API_KEY}"
   collection_prefix: "${QDRANT_COLLECTION_PREFIX:-SUPERMAGIC-}"
-  filebase_prefix: "${QDRANT_FILEBASE_PREFIX:-SUPERMAGIC-FILEBASE-}"
 
-# TikHub配置
-tikhub:
-  api_key: "${TIKHUB_API_KEY}"
-
-# 存储服务配置
+# Storage service configuration
 storage:
-  # 火山引擎TOS配置
+  # Volcano Engine TOS configuration
   tos:
     host: "${TOS_HOST}"
     policy: "${TOS_POLICY}"
@@ -692,21 +631,3 @@ sandbox:
   fetch_workspace: "${FETCH_WORKSPACE:-True}"
   agent_idle_timeout: "${AGENT_IDLE_TIMEOUT:-600}"
   idle_monitor_interval: "${IDLE_MONITOR_INTERVAL:-60}"
-
-# 火山引擎语音配置
-asr:
-  app_id: "${ASR_VKE_APP_ID}"
-  token: "${ASR_VKE_TOKEN}"
-  cluster: "${ASR_VKE_CLUSTER}"
-  secret_key: "${ASR_VKE_SECRET_KEY}"
-
-
-# Magic-Space 配置
-magic_space:
-  api_key: "${MAGIC_SPACE_API_KEY}"
-  api_base_url: "${MAGIC_SPACE_API_BASE_URL}"
-
-# PDF 理解服务配置
-pdf_understanding:
-  api_key: "${PDF_UNDERSTANDING_API_KEY}"
-  api_url: "${PDF_UNDERSTANDING_API_URL:-https://i-magic-service.letsmagic.cn/api/chat}"
