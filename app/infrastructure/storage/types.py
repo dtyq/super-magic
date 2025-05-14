@@ -14,6 +14,7 @@ class PlatformType(str, Enum):
 
     tos = "tos"
     aliyun = "aliyun"  # 阿里云 OSS
+    local = "local"    # 本地存储
 
 
 class BaseStorageCredentials(BaseModel):
@@ -102,7 +103,7 @@ class AliyunTemporaryCredentialData(BaseModel):
 # 阿里云OSS凭证
 class AliyunCredentials(BaseStorageCredentials):
     """阿里云OSS凭证模型，支持STS"""
-    
+
     platform: Literal[PlatformType.aliyun] = Field(PlatformType.aliyun, description="存储平台类型")
     endpoint: str = Field(default=..., description="OSS终端节点URL")
     region: str = Field(..., description="OSS区域")
@@ -110,7 +111,7 @@ class AliyunCredentials(BaseStorageCredentials):
     dir: str = Field(..., description="上传目录路径")
     credentials: AliyunTemporaryCredentialData = Field(..., description="STS临时凭证")
     expire: Optional[int] = Field(None, description="过期时间戳")
-    
+
     @model_validator(mode='before')
     @classmethod
     def _normalize_input(cls, data: Any) -> Any:
@@ -133,7 +134,7 @@ class AliyunCredentials(BaseStorageCredentials):
             input_data.setdefault('region', temp_cred_dict.get('region'))
             input_data.setdefault('bucket', temp_cred_dict.get('bucket'))
             input_data.setdefault('dir', temp_cred_dict.get('dir', ''))
-            
+
             if 'credentials' not in input_data:
                 input_data['credentials'] = {
                     'AccessKeyId': temp_cred_dict.get('access_key_id'),
@@ -141,7 +142,7 @@ class AliyunCredentials(BaseStorageCredentials):
                     'SecurityToken': temp_cred_dict.get('sts_token'),
                     'Expiration': input_data.get('expire_time', '2099-12-31T23:59:59Z')
                 }
-        
+
         return input_data
 
     def get_dir(self) -> str:
@@ -152,18 +153,18 @@ class AliyunCredentials(BaseStorageCredentials):
         """获取阿里云OSS公共访问基础URL (格式: https://bucket.endpoint)"""
         if not self.bucket or not self.endpoint:
             return None
-        
+
         # 清理 endpoint，移除可能存在的协议头
         endpoint = self.endpoint
-        if endpoint.startswith("http://"): 
+        if endpoint.startswith("http://"):
             endpoint = endpoint[len("http://"):]
-        if endpoint.startswith("https://"): 
+        if endpoint.startswith("https://"):
             endpoint = endpoint[len("https://"):]
-            
+
         # 移除末尾的斜杠 (尽管 endpoint 通常不带)
         if endpoint.endswith('/'):
             endpoint = endpoint[:-1]
-            
+
         # 总是使用 https 协议
         return f"https://{self.bucket}.{endpoint}"
 
@@ -192,3 +193,42 @@ class StorageUploader(Protocol):
     ) -> StorageResponse:
         """Upload file to storage platform."""
         ...
+
+
+# 本地存储凭证
+class LocalTemporaryCredential(BaseModel):
+    """本地存储临时凭证模型"""
+    host: str = Field(..., description="上传接口URL")
+    dir: str = Field(..., description="上传目录路径")
+    read_host: str = Field(..., description="文件读取基础URL")
+    credential: str = Field("", description="凭证标识符")
+
+    model_config = ConfigDict(populate_by_name=True)
+
+
+class LocalCredentials(BaseStorageCredentials):
+    """本地存储凭证模型"""
+
+    platform: Literal[PlatformType.local] = Field(PlatformType.local, description="存储平台类型")
+    temporary_credential: LocalTemporaryCredential = Field(..., description="本地存储临时凭证")
+    expires: Optional[int] = Field(None, description="过期时间戳")
+
+    def get_dir(self) -> str:
+        """上传目录路径"""
+        return self.temporary_credential.dir
+
+    def get_public_access_base_url(self) -> Optional[str]:
+        """获取本地存储公共访问基础URL"""
+        read_host = self.temporary_credential.read_host
+        if not read_host:
+            return None
+
+        # 确保返回包含协议的完整基础URL
+        if not read_host.startswith(("http://", "https://")):
+            read_host = f"http://{read_host}"
+
+        # 移除末尾的斜杠，如果有的话
+        if read_host.endswith('/'):
+            read_host = read_host[:-1]
+
+        return read_host

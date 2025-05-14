@@ -9,6 +9,7 @@ from .base import AbstractStorage
 from .types import PlatformType, BaseStorageCredentials
 from .volcengine import VolcEngineUploader
 from .aliyun import AliyunOSSUploader
+from .local import LocalStorage
 from app.core.entity.message.client_message import STSTokenRefreshConfig
 
 class StorageFactory:
@@ -18,6 +19,7 @@ class StorageFactory:
     _implementations: Dict[PlatformType, Type[AbstractStorage]] = {
         PlatformType.tos: VolcEngineUploader,
         PlatformType.aliyun: AliyunOSSUploader,
+        PlatformType.local: LocalStorage,
         # 在这里添加其他平台的实现
     }
 
