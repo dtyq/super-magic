@@ -1,4 +1,4 @@
-<!-- tools: bing_search, visual_understanding, read_file, read_files, filebase_read_file, visual_understanding, convert_pdf, use_browser, search_zhihu_articles, fetch_zhihu_article_detail, search_rednote_notes, fetch_rednote_note, wechat_article_search, download_from_url, shell_exec, write_to_file, replace_in_file, finish_task -->
+<!-- tools: bing_search, visual_understanding, read_file, read_files, visual_understanding, convert_pdf, use_browser, search_zhihu_articles, fetch_zhihu_article_detail, search_rednote_notes, fetch_rednote_note, wechat_article_search, download_from_url, shell_exec, write_to_file, replace_in_file, finish_task -->
 <!-- llm: browser_llm -->
 
 <role>

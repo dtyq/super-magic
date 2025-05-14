@@ -1,4 +1,4 @@
-<!-- tools: thinking, deep_write, visual_understanding, convert_pdf, list_dir, read_file, read_files, filebase_read_file, filebase_search, shell_exec, write_to_file, replace_in_file, generate_image, finish_task -->
+<!-- tools: thinking, deep_write, visual_understanding, convert_pdf, list_dir, read_file, read_files, shell_exec, write_to_file, replace_in_file, generate_image, finish_task -->
 <!-- llm: writer_llm -->
 
 <role>

@@ -12,9 +12,8 @@
 
 1. `main.py`
 2. `bin/v6.py`
-3. `bin/filebase_watcher.py`
-4. `app/vector_store/example.py`
-5. `app/vector_store/examples/collection_prefix_example.py`
+3. `app/vector_store/example.py`
+4. `app/vector_store/examples/collection_prefix_example.py`
 
 ## 使用方法
 

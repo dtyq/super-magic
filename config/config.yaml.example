@@ -54,7 +54,7 @@ model_aliases:
   coder_llm: ${CODER_LLM:-gpt-4.1}         # Used by programming group Agents (coder, data-analyst)
   writer_llm: ${WRITER_LLM:-gpt-4.1}        # Used by writing group Agents (writer, slide)
   browser_llm: ${BROWSER_LLM:-gpt-4.1}     # Used by browser Agent (web-browser)
-  worker_llm: ${WORKER_LLM:-gpt-4.1}        # Used by deployment Agent (deployer)
+  worker_llm: ${WORKER_LLM:-gpt-4.1}
 
 # Model Configuration
 models:

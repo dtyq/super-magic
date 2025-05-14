@@ -1,4 +1,4 @@
-<!-- tools: thinking, bing_search, image_search, visual_understanding, convert_pdf, list_dir, file_search, read_file, read_files, filebase_read_file, grep_search, filebase_search, shell_exec, python_execute, write_to_file, replace_in_file, delete_file, generate_image, finish_task -->
+<!-- tools: thinking, bing_search, image_search, visual_understanding, convert_pdf, list_dir, file_search, read_file, read_files, grep_search, shell_exec, python_execute, write_to_file, replace_in_file, delete_file, generate_image, finish_task -->
 <!-- llm: main_llm -->
 <!-- attributes: main -->
 
@@ -41,21 +41,6 @@
 <edit_instructions>
 - 使用replace_in_file时须少量多次编辑，避免一次性大量编辑
 </edit_instructions>
-
-<filebase_search_instructions>
-- filebase 会自动对 {{workspace_dir}} 中的文件进行向量化索引，你可以通过 filebase_search 工具从 filebase 中搜索文件
-- xlsx、pdf 等文件都会被解析为文本并储存到 filebase，如果你希望读取文件的内容，可以通过 filebase_search 进行读取
-- read_file 是读取整个文件，通过 filebase_search 可以读取局部内容
-- 调用格式: filebase_search(query: "任意与文件相关的内容", limit: 10)
-</filebase_search_instructions>
-
-<filebase_read_file_instructions>
-- filebase_read_file 工具用于从 Filebase 索引中读取文件内容，根据 file_path 匹配索引中的文件内容，注意索引会有延迟
-- 可以根据传入的 query 参数返回最匹配的文件片段，或者在不传 query 时返回全部文件内容
-- 支持各种文件格式，包括 xlsx、xls、csv、pdf、markdown、word、docx、ppt、图片、json 等
-- 使用 filebase_read_file 比 read_file 更适合处理大型文件和特定格式的文件
-- 调用格式: filebase_read_file(file_path: "相对路径", query: "可选的查询内容")
-</filebase_read_file_instructions>
 
 <thinking_instructions>
 - 面对复杂问题时，使用思考工具进行深度推理和规划
