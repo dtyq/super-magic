@@ -5,13 +5,15 @@ Storage module initialization.
 from .base import AbstractStorage
 from .exceptions import InitException, InitExceptionCode, UploadException, UploadExceptionCode
 from .factory import StorageFactory
-from .types import BaseStorageCredentials, FileContent, Options, PlatformType, StorageResponse, VolcEngineCredentials
+from .types import BaseStorageCredentials, FileContent, Options, PlatformType, StorageResponse, VolcEngineCredentials, LocalCredentials
+from .local import LocalStorage
 
 __all__ = [
     # Types
     "PlatformType",
     "BaseStorageCredentials",
     "VolcEngineCredentials",
+    "LocalCredentials",
     "StorageResponse",
     "FileContent",
     "Options",
@@ -25,4 +27,5 @@ __all__ = [
     # Classes
     "AbstractStorage",
     "StorageFactory",
+    "LocalStorage",
 ] 

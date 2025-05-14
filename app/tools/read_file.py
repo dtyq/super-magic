@@ -443,5 +443,5 @@ class ReadFile(AbstractFileTool[ReadFileParams], WorkspaceGuardTool[ReadFilePara
         # 成功消息始终引用原始请求的文件
         return {
             "action": "读取文件",
-            "remark": f"已读取「{file_name}」"
+            "remark": f"「{file_name}」"
         }
